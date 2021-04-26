@@ -31,8 +31,7 @@ func _input(event):
 
 func _process(delta):
 	#camera physics interpolation to reduce physics jitter on high refresh-rate monitors
-	var fps = Engine.get_frames_per_second()
-	if fps > Engine.iterations_per_second:
+	if Engine.get_frames_per_second() > Engine.iterations_per_second:
 		camera.set_as_toplevel(true)
 		camera.global_transform.origin = camera.global_transform.origin.linear_interpolate(head.global_transform.origin, cam_accel * delta)
 		camera.rotation.y = rotation.y
