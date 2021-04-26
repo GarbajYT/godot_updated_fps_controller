@@ -8,3 +8,8 @@ Features include:
 -physics interpolation to reduce jitter on high refresh rate monitors
 
 -solves all weird slope sliding/climbing issues 
+
+
+Suggestions:
+
+-names for wasd keybindings are "move_forward" "move_backward" "move_left" and "move_right"
