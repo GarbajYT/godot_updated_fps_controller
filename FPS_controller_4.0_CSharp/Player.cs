@@ -3,19 +3,18 @@ using System.Collections.Generic;
 
 public class Player : KinematicBody
 {
-    Spatial head;
-    Camera camera;
-    float speed = 7f;
-    
     Dictionary<string, int> accel_type = new Dictionary<string, int>();
 
+    Spatial head;
+    Camera camera;
+
+    float speed = 7f;
     float gravity = 20f;
     float jump = 10f;
-
     float cam_accel = 40f;
     float mouse_sense = 0.1f;
-    Vector3 snap;
 
+    Vector3 snap;
     Vector3 direction = new Vector3();
     Vector3 velocity = new Vector3();
     Vector3 gravity_vec = new Vector3();
@@ -59,7 +58,6 @@ public class Player : KinematicBody
             camera.Rotation = camRot;
         } else {
             camera.SetAsToplevel(false);
-            Vector3 Gtrans = head.GlobalTransform.origin;
             camera.GlobalTransform = head.GlobalTransform;
         }
     }
