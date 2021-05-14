@@ -13,5 +13,7 @@ Features include:
 Suggestions:
 
 -attach FPS.gd to the main node (kinematic body) of FPS.tscn
+
 -names for wasd keybindings are "move_forward" "move_backward" "move_left" and "move_right"
+
 -this is just a character controller, I assume you already have a game world set up to test it out on
