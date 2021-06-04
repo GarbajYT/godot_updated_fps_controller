@@ -1,5 +1,5 @@
 # godot_updated_fps_controller
-An updated basic fps controller for Godot 3.x and 4.0.
+Updated basic fps and tps controllers for Godot 3.x and 4.0.
 
 Features include:
 
