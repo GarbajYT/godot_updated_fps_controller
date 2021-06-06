@@ -24,7 +24,7 @@ public class Player : KinematicBody
 
     public override void _Ready()
     {
-        accel_type.Add("default", 40);
+        accel_type.Add("default", 7);
         accel_type.Add("air", 1);
         accel = accel_type["default"];
         head = GetNode<Spatial>("Head");
