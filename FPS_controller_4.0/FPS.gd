@@ -1,7 +1,7 @@
 extends KinematicBody
 
 var speed = 7
-var accel_type = {"default": 40, "air": 1}
+var accel_type = {"default": 7, "air": 1}
 @onready var accel = accel_type["default"]
 var gravity = 20
 var jump = 10
