@@ -71,6 +71,7 @@ public class Player : KinematicBody{
 
     private void CalculateVelocityAndMove(float delta) {
         if(IsOnFloor()){
+            m_accel = GROUND_ACCEL;
             if(Input.IsActionJustPressed("player_jump")){
                 m_snap = Vector3.Zero;
                 m_gravityVel = new Vector3(0, JUMP, 0);
