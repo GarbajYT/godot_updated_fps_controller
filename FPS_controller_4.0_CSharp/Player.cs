@@ -1,95 +1,106 @@
 using Godot;
-using System.Collections.Generic;
 
-public class Player : KinematicBody
-{
-    Dictionary<string, int> accel_type = new Dictionary<string, int>();
+public class Player : KinematicBody{
+    public const float GRAVITY = 20;
+    public const float MOVE_SPEED = 7;
+    public const float JUMP = 10;
+    public const float MOUSE_SENS = 0.1f;
+    public const float GROUND_ACCEL = 15;
+    public const float AIR_ACCEL = 7;
 
-    Spatial head;
-    Camera camera;
+    private Vector3 m_snap, m_gravityVel, m_direction, m_velocity;
 
-    float speed = 7f;
-    float gravity = 20f;
-    float jump = 10f;
-    float cam_accel = 40f;
-    float mouse_sense = 0.1f;
+    private Spatial m_head;
+    private Camera m_camera;
+    private float m_accel;    
 
-    Vector3 snap;
-    Vector3 direction = new Vector3();
-    Vector3 velocity = new Vector3();
-    Vector3 gravity_vec = new Vector3();
-    Vector3 movement = new Vector3();
+    public override void _Ready() {
+        Input.SetMouseMode(Input.MouseMode.Captured); // Hide the cursor but keep tracking the motion.
 
-    int accel;
-
-    public override void _Ready()
-    {
-        accel_type.Add("default", 7);
-        accel_type.Add("air", 1);
-        accel = accel_type["default"];
-        head = GetNode<Spatial>("Head");
-        camera = GetNode<Spatial>("Head").GetChild<Camera>(0);
-
-        Input.SetMouseMode(Input.MouseMode.Captured);
+        m_head = GetNode<Spatial>("Head");
+        m_camera = m_head.GetChild<Camera>(0);
     }
 
-    public override void _Input(InputEvent @event)
-    {
-        if (@event is InputEventMouseMotion mouseMotion) {
-            RotateY(Mathf.Deg2Rad(-mouseMotion.Relative.x * mouse_sense));
-            head.RotateX(Mathf.Deg2Rad(-mouseMotion.Relative.y * mouse_sense));
-            Vector3 rotDeg = head.RotationDegrees;
-            rotDeg.x = Mathf.Clamp(rotDeg.x, -89f, 89f);
-            head.RotationDegrees = rotDeg;
-        }
+    public override void _Process(float delta){
+        MoveCamera(delta);
     }
 
-    public override void _Process(float delta)
-    {
-        if (Engine.GetFramesPerSecond() > Engine.IterationsPerSecond) {
-            camera.SetAsToplevel(true);
-
-            Vector3 Gtrans = head.GlobalTransform.origin;
-            camera.GlobalTransform.origin.LinearInterpolate(Gtrans, cam_accel * delta);
-
-            Vector3 camRot = camera.Rotation;
-            camRot.y = Rotation.y;
-            camRot.x = head.Rotation.x;
-            camera.Rotation = camRot;
-        } else {
-            camera.SetAsToplevel(false);
-            camera.GlobalTransform = head.GlobalTransform;
-        }
+    public override void _PhysicsProcess(float delta) {
+        CalculateDirection();
+        CalculateVelocityAndMove(delta);
     }
 
-    public override void _PhysicsProcess(float delta)
-    {
-        direction = Vector3.Zero;
-        var h_rot = GlobalTransform.basis.GetEuler().y;
-	    var f_input = Input.GetActionStrength("move_backward") - Input.GetActionStrength("move_forward");
-	    var h_input = Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left");
-	    direction = new Vector3(h_input, 0, f_input).Rotated(Vector3.Up, h_rot).Normalized();
+    public override void _Input(InputEvent ev) {
+        if(ev is InputEventMouseMotion motion) {
+            RotateY(Mathf.Deg2Rad(-motion.Relative.x * MOUSE_SENS)); // Rotate the whole player on the Y axis.
 
-        if (IsOnFloor()) {
-            snap = -GetFloorNormal();
-		    accel = accel_type["default"];
-		    gravity_vec = Vector3.Zero;
-        } else {
-            snap = Vector3.Down;
-		    accel = accel_type["air"];
-		    gravity_vec += Vector3.Down * gravity * delta;
-        }
+            //  Don't let it overflow.
+            Vector3 rot = RotationDegrees;
+            if(rot.y >= 360){
+                rot.y -= 360;
+            }
+            
+            if(rot.y <= -360){
+                rot.y += 360;
+            }
+            RotationDegrees = rot;
 
-        if (Input.IsActionJustPressed("jump") && IsOnFloor()) {
-            snap = Vector3.Zero;
-		    gravity_vec = Vector3.Up * jump;
-        }
+            m_head.RotateX(Mathf.Deg2Rad(-motion.Relative.y * MOUSE_SENS)); // Rotate the head on the X axis.
 
-        velocity = velocity.LinearInterpolate(direction * speed, accel * delta);
-	    movement = velocity + gravity_vec;
-	
-	    MoveAndSlideWithSnap(movement, snap, Vector3.Up);
-
+            Vector3 headRot = m_head.RotationDegrees;
+            headRot.x = Mathf.Clamp(headRot.x, -89, 89); // Limit the head rotation.
+            m_head.RotationDegrees = headRot;
+        }    
     }
 
+    private void CalculateDirection() {
+        // ? Is it better to create new object than setting its values to 0?
+        m_direction = new Vector3();
+
+        Vector3 forward = GlobalTransform.basis.z;
+        Vector3 right = GlobalTransform.basis.x;
+
+        if(Input.IsActionPressed("player_move_right"))      m_direction += right;
+        if(Input.IsActionPressed("player_move_left"))       m_direction -= right;
+        if(Input.IsActionPressed("player_move_forward"))    m_direction -= forward;
+        if(Input.IsActionPressed("player_move_backward"))   m_direction += forward;
+
+        // Prevent the player from walking faster when walking diagonally.
+        m_direction = m_direction.Normalized();
+    }
+
+    private void CalculateVelocityAndMove(float delta) {
+        if(IsOnFloor()){
+            if(Input.IsActionJustPressed("player_jump")){
+                m_snap = Vector3.Zero;
+                m_gravityVel = new Vector3(0, JUMP, 0);
+            }else{
+                m_snap = -GetFloorNormal();
+                m_gravityVel = Vector3.Zero;
+            }
+        } else{
+            m_accel = AIR_ACCEL;
+            m_snap = Vector3.Down;
+            m_gravityVel += new Vector3(0, -GRAVITY * delta, 0); 
+        }
+
+        m_velocity = m_velocity.LinearInterpolate(m_direction * MOVE_SPEED, m_accel * delta);
+        MoveAndSlideWithSnap(m_velocity + m_gravityVel, m_snap, Vector3.Up);
+    }
+
+    private void MoveCamera(float delta){
+        float fraction = Engine.GetPhysicsInterpolationFraction();
+        if(Engine.GetFramesPerSecond() > Engine.IterationsPerSecond){
+            m_camera.SetAsToplevel(true);
+
+            Transform t = m_camera.GlobalTransform;
+            t.origin = t.origin.LinearInterpolate(m_head.GlobalTransform.origin, fraction);
+            m_camera.GlobalTransform = t;
+
+            m_camera.Rotation = new Vector3(m_head.Rotation.x, Rotation.y, m_camera.Rotation.z);
+        }else{
+            m_camera.SetAsToplevel(false);
+            m_camera.GlobalTransform = m_head.GlobalTransform;
+        }
+    }
 }
