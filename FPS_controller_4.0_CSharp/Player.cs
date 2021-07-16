@@ -9,8 +9,8 @@ public class Player : KinematicBody
     Camera camera;
 
     float speed = 7f;
-    float gravity = 20f;
-    float jump = 10f;
+    float gravity = 9.8f;
+    float jump = 5f;
     float cam_accel = 40f;
     float mouse_sense = 0.1f;
 
