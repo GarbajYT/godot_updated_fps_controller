@@ -50,7 +50,11 @@ public class Player : KinematicBody
             camera.SetAsToplevel(true);
 
             Vector3 Gtrans = head.GlobalTransform.origin;
-            camera.GlobalTransform.origin.LinearInterpolate(Gtrans, cam_accel * delta);
+	    	
+	    
+	    var cameraGT = camera.GlobalTransform;
+            cameraGT.origin = camera.GlobalTransform.origin.LinearInterpolate(Gtrans, cam_accel * delta);
+	    camera.GlobalTransform = camGT;
 
             Vector3 camRot = camera.Rotation;
             camRot.y = Rotation.y;
