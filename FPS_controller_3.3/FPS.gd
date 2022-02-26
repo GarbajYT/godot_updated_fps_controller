@@ -62,6 +62,8 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		snap = Vector3.ZERO
 		gravity_vec = Vector3.UP * jump
+
+    if is_on_ceiling(): gravity_vec.y = min(gravity_vec.y, 0)
 	
 	#make it move
 	velocity = velocity.linear_interpolate(direction * speed, accel * delta)

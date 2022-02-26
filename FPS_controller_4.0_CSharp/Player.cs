@@ -89,6 +89,8 @@ public class Player : KinematicBody
 		    gravity_vec = Vector3.Up * jump;
         }
 
+        if (IsOnCeiling) {gravity_vec = Mathf.Min(gravity_vec.Y, 0f);}
+
         velocity = velocity.LinearInterpolate(direction * speed, accel * delta);
 	    movement = velocity + gravity_vec;
 	
