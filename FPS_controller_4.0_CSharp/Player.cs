@@ -54,7 +54,7 @@ public class Player : KinematicBody
 	    
 	    var cameraGT = camera.GlobalTransform;
             cameraGT.origin = camera.GlobalTransform.origin.LinearInterpolate(Gtrans, cam_accel * delta);
-	    camera.GlobalTransform = camGT;
+	    camera.GlobalTransform = cameraGT;
 
             Vector3 camRot = camera.Rotation;
             camRot.y = Rotation.y;
@@ -71,7 +71,7 @@ public class Player : KinematicBody
         direction = Vector3.Zero;
         var h_rot = GlobalTransform.basis.GetEuler().y;
 	    var f_input = Input.GetActionStrength("move_backward") - Input.GetActionStrength("move_forward");
-	    var h_input = Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left");
+	    var h_input = Input.GetActionStrength("move_left") - Input.GetActionStrength("move_right");
 	    direction = new Vector3(h_input, 0, f_input).Rotated(Vector3.Up, h_rot).Normalized();
 
         if (IsOnFloor()) {
