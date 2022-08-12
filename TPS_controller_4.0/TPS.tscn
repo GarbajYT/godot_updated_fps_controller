@@ -1,39 +1,28 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=5 format=3 uid="uid://ch6exm36kei4d"]
 
-[ext_resource path="res://TPS_controller_4.0/TPS.gd" type="Script" id=1]
+[sub_resource type="CapsuleShape3D" id="1"]
 
-[sub_resource type="CapsuleShape" id=1]
-radius = 0.5
+[sub_resource type="CapsuleMesh" id="2"]
 
-[sub_resource type="CapsuleMesh" id=2]
-radius = 0.5
+[sub_resource type="BoxMesh" id="3"]
+size = Vector3(0.4, 0.4, 0.4)
 
-[sub_resource type="CubeMesh" id=3]
-size = Vector3( 0.4, 0.4, 0.4 )
-
-[node name="TPS" type="KinematicBody"]
+[node name="TPS" type="CharacterBody3D"]
 collision_layer = 2
-script = ExtResource( 1 )
 
-[node name="CollisionShape" type="CollisionShape" parent="."]
-transform = Transform( 1, 0, 0, 0, -1.62921e-07, -1, 0, 1, -1.62921e-07, 0, 0, 0 )
-shape = SubResource( 1 )
+[node name="CollisionShape" type="CollisionShape3D" parent="."]
+shape = SubResource("1")
 
-[node name="MeshInstance" type="MeshInstance" parent="."]
-transform = Transform( 1, 0, 0, 0, -1.62921e-07, -1, 0, 1, -1.62921e-07, 0, 0, 0 )
-mesh = SubResource( 2 )
-material/0 = null
+[node name="MeshInstance" type="MeshInstance3D" parent="."]
+mesh = SubResource("2")
 
-[node name="MeshInstance" type="MeshInstance" parent="MeshInstance"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -0.734567 )
-mesh = SubResource( 3 )
-material/0 = null
+[node name="MeshInstance" type="MeshInstance3D" parent="MeshInstance"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -0.734567)
+mesh = SubResource("3")
 
-[node name="Head" type="Spatial" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0 )
+[node name="Head" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 
-[node name="CamPivot" type="Spatial" parent="Head"]
+[node name="CamPivot" type="Node3D" parent="Head"]
 
-[node name="ClippedCamera" type="ClippedCamera" parent="Head/CamPivot"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4 )
-fov = 90.0
+[node name="Camera3D" type="Camera3D" parent="Head/CamPivot"]
