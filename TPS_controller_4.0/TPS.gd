@@ -77,7 +77,7 @@ func _physics_process(delta):
 		gravity_vec = Vector3.UP * jump
 	
 	#make it move
-	movement = movement.linear_interpolate(direction * speed, accel * delta)
+	movement = movement.lerp(direction * speed, accel * delta)
 	velocity = movement + gravity_vec
 	
 	move_and_slide()
