@@ -58,7 +58,7 @@ func _physics_process(delta):
 		
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		gravity_vec = Vector3.UP * jump
-	
+	velocity.y = 0
 	#make it move
 	movement = velocity.lerp(direction * speed, accel * delta)
 	velocity = movement + gravity_vec
