@@ -1,4 +1,5 @@
-extends KinematicBody
+extends CharacterBody3D
+
 
 var speed = 7
 const ACCEL_DEFAULT = 10
@@ -14,7 +15,6 @@ var snap
 var angular_velocity = 30
 
 var direction = Vector3()
-var velocity = Vector3()
 var gravity_vec = Vector3()
 var movement = Vector3()
 
@@ -27,26 +27,26 @@ func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	
 	#mesh no longer inherits rotation of parent, allowing it to rotate freely
-	mesh.set_as_toplevel(true)
+	mesh.top_level = true
 	
 func _input(event):
 	#get mouse input for camera rotation
 	if event is InputEventMouseMotion:
-		rotate_y(deg2rad(-event.relative.x * mouse_sense))
-		head.rotate_x(deg2rad(-event.relative.y * mouse_sense))
-		head.rotation.x = clamp(head.rotation.x, deg2rad(-89), deg2rad(89))
+		rotate_y(deg_to_rad(-event.relative.x * mouse_sense))
+		head.rotate_x(deg_to_rad(-event.relative.y * mouse_sense))
+		head.rotation.x = clamp(head.rotation.x, deg_to_rad(-89), deg_to_rad(89))
 
 func _process(delta):
 	#physics interpolation to reduce jitter on high refresh-rate monitors
 	var fps = Engine.get_frames_per_second()
-	if fps > Engine.iterations_per_second:
-		campivot.set_as_toplevel(true)
-		campivot.global_transform.origin = campivot.global_transform.origin.linear_interpolate(head.global_transform.origin, cam_accel * delta)
+	if fps > Engine.physics_ticks_per_second:
+		campivot.top_level = true
+		campivot.global_transform.origin = campivot.global_transform.origin.lerp(head.global_transform.origin, cam_accel * delta)
 		campivot.rotation.y = rotation.y
 		campivot.rotation.x = head.rotation.x
-		mesh.global_transform.origin = mesh.global_transform.origin.linear_interpolate(global_transform.origin, cam_accel * delta)
+		mesh.global_transform.origin = mesh.global_transform.origin.lerp(global_transform.origin, cam_accel * delta)
 	else:
-		campivot.set_as_toplevel(false)
+		campivot.top_level = false
 		campivot.global_transform = head.global_transform
 		mesh.global_transform.origin = global_transform.origin
 
@@ -75,12 +75,10 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		snap = Vector3.ZERO
 		gravity_vec = Vector3.UP * jump
+	velocity.y = 0
 	
 	#make it move
-	velocity = velocity.linear_interpolate(direction * speed, accel * delta)
-	movement = velocity + gravity_vec
+	movement = movement.lerp(direction * speed, accel * delta)
+	velocity = movement + gravity_vec
 	
-	move_and_slide_with_snap(movement, snap, Vector3.UP)
-	
-	
-	
+	move_and_slide()
